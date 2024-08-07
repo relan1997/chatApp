@@ -50,7 +50,7 @@ const Chat = () => {
             changeChat={handleChatChange}
           />
           {
-           isLoaded && currChat===undefined? <Welcome currUser={currUser}/>:<ChatContainer currChat={currChat}/>
+           isLoaded && currChat===undefined? <Welcome currUser={currUser}/>:<ChatContainer currChat={currChat} currUser={currUser}/>
           }
          
         </div>

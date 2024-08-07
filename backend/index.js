@@ -3,12 +3,14 @@ import cors from 'cors'
 import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 import userRouter from './routes/userRoutes.js';
+import messageRouter from './routes/messagesRoute.js';
 const app=express();
 dotenv.config();
 
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth',userRouter);
+app.use('/api/messages',messageRouter);
 
 
 
