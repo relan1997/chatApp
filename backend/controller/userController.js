@@ -46,17 +46,35 @@ export const login = async (req, res, next) => {
   }
 };
 
-export const setAvatar=async(req,res,next)=>{
-    try{
-        const userId=req.params.id;
-        const avatarImage=req.body.image;
-        const userData=await User.findByIdAndUpdate(userId,{
-            isAvatarImageSet:true,
-            avatarImage
-        });
-        return res.json({isSet:userData.isAvatarImageSet,image:userData.image})
-    }
-    catch(err){
-        next(err);
-    }
+export const setAvatar=async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const avatarImage = req.body.image;
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        isAvatarImageSet: true,
+        avatarImage,
+      },
+      { new: true }
+    );
+    return res.json({
+      isSet: userData.isAvatarImageSet,
+      image: userData.avatarImage,
+    });
+  } catch (ex) {
+    next(ex);
+  }
+};
+
+
+export const getAllUsers=async(req,res,next)=>{
+  try {
+    const users=await User.find({_id:{$ne:req.params.id}}).select([
+      'email','username','avatarImage','id'
+    ]) // will select all the ids excluding the id of the user
+    return res.json(users);
+  } catch (err) {
+    next(err);
+  }
 }
