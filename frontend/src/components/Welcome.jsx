@@ -27,7 +27,7 @@ img{
     height:20rem;
 }
     span{
-        color:#4e0eff;
+        color:#4e0eff
     }
 
 `
