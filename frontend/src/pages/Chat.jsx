@@ -4,42 +4,49 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { allUsersRoute } from "../utils/APIRoutes";
 import Contacts from "../components/Contacts";
+import Welcome from "../components/Welcome";
 const Chat = () => {
   const [currUser, setCurrUser] = useState(undefined);
   const [contacts, setContacts] = useState([]);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
+  const [currChat, setCurrChat] = useState(undefined);
   useEffect(() => {
-    const helper=async()=>{
+    const helper = async () => {
       if (!localStorage.getItem("chat-app-user")) {
         navigate("/login");
+      } else {
+        setCurrUser(await JSON.parse(localStorage.getItem("chat-app-user")));
       }
-      else{
-        setCurrUser(await JSON.parse(localStorage.getItem('chat-app-user')));
-      }
-      
-    }
-    helper()
+    };
+    helper();
   }, []);
 
   useEffect(() => {
     const helper = async () => {
-      if(currUser){
-        if(currUser.isAvatarImageSet){
+      if (currUser) {
+        if (currUser.isAvatarImageSet) {
           const data = await axios.get(`${allUsersRoute}/${currUser._id}`);
-          setContacts(data.data)
-        }
-        else{
-          navigate('/setAvatar')
+          setContacts(data.data);
+        } else {
+          navigate("/setAvatar");
         }
       }
     };
     helper();
   }, [currUser]);
+  const handleChatChange = (chat) => {
+    setCurrChat(chat);
+  };
   return (
     <>
       <Container>
         <div className="container">
-          <Contacts contacts={contacts} currUser={currUser}/>
+          <Contacts
+            contacts={contacts}
+            currUser={currUser}
+            changeChat={handleChatChange}
+          />
+          <Welcome currUser={currUser}/>
         </div>
       </Container>
     </>
@@ -65,6 +72,6 @@ const Container = styled.div`
       grid-template-columns: 35% 65%;
     }
   }
-`
+`;
 
 export default Chat;
