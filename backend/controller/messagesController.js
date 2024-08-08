@@ -35,3 +35,17 @@ export const getAllMessage = async (req, res, next) => {
     next(err);
   }
 };
+
+export const checkOnline = async (req, res, next) => {
+    try {
+      const { chat } = req.body;
+  
+      if (global.onlineUsers.has(chat)) {
+        return res.json({ status: true });
+      } else {
+        return res.json({ status: false });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
