@@ -3,11 +3,12 @@ import styled from "styled-components";
 import Logout from "./Logout";
 import ChatInput from "./ChatInput";
 import axios from "axios";
-import { getAllMessageRoute, sendMessageRoute } from "../utils/APIRoutes";
+import { checkOnline, getAllMessageRoute, sendMessageRoute } from "../utils/APIRoutes";
 
 const ChatContainer = ({ currChat, currUser, socket }) => {
   const [messages, setMessages] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [onlineChat, setOnlineChat] = useState(false);
   const scrollRef = useRef();
 
   useEffect(() => {
@@ -52,6 +53,11 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
       socket.current.on("msg-received", (msg) => {
         setArrivalMessage({ fromSelf: false, message: msg });
       });
+
+      socket.current.on("disconnect", () => {
+        // Update the chat status to offline when disconnected
+        setOnlineChat(false);
+      });
     }
   }, [socket]);
 
@@ -64,6 +70,22 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const checkIfOnline = async () => {
+      if (currChat) {
+        try {
+          const response = await axios.post(checkOnline, {
+            chat: currChat._id,
+          });
+          setOnlineChat(response.data.status);
+        } catch (error) {
+          console.error("Error checking online status:", error);
+        }
+      }
+    };
+    checkIfOnline();
+  }, [currChat]);
 
   return (
     <>
@@ -79,6 +101,9 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
               </div>
               <div className="username">
                 <h3>{currChat.username}</h3>
+                <span className={`online-status ${onlineChat ? "online" : "offline"}`}>
+                  {onlineChat ? "Online" : "Offline"}
+                </span>
               </div>
             </div>
             <Logout />
@@ -124,8 +149,21 @@ const Container = styled.div`
         }
       }
       .username {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         h3 {
           color: white;
+        }
+        .online-status {
+          margin-left: 10px;
+          font-size: 0.9rem;
+          &.online {
+            color: #00ff00;
+          }
+          &.offline {
+            color: #ff0000;
+          }
         }
       }
     }

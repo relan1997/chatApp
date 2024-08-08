@@ -41,6 +41,7 @@ global.onlineUsers = new Map();
 
 io.on('connection', (socket) => {
   global.chatSocket = socket;
+  
   socket.on('add-user', (userId) => {
     global.onlineUsers.set(userId, socket.id);
   });
@@ -51,4 +52,17 @@ io.on('connection', (socket) => {
       socket.to(sendUserSocket).emit('msg-received', data.message);
     }
   });
+
+  socket.on('disconnect', () => {
+    // Iterate through the entries to find and remove the key
+    for (let [userId, socketId] of global.onlineUsers.entries()) {
+        if (global.onlineUsers.has(userId)) {
+            global.onlineUsers.delete(userId);
+            console.log(`User disconnected: ${userId}`);
+            break; // Exit the loop after removing the user
+        }
+    }
 });
+
+});
+
