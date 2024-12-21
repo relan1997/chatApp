@@ -15,8 +15,10 @@ const Chat = () => {
   const navigate = useNavigate();
   const [currChat, setCurrChat] = useState(undefined);
   const [isLoaded, setIsLoaded] = useState(false);
+  //const [onlineUsers,setOnlineUsers] = useState([])
 
   useEffect(() => {
+    //console.log("from chat:",socket)
     const helper = async () => {
       if (!localStorage.getItem("chat-app-user")) {
         navigate("/login");

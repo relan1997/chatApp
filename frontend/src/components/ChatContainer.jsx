@@ -8,9 +8,11 @@ import { getAllMessageRoute, sendMessageRoute } from "../utils/APIRoutes";
 const ChatContainer = ({ currChat, currUser, socket }) => {
   const [messages, setMessages] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [onlineUsers,setOnlineUsers] = useState([])
   const scrollRef = useRef();
 
   useEffect(() => {
+    console.log("from chatContainer",socket)
     const fetchMessages = async () => {
       if (currChat) {
         try {
@@ -26,6 +28,19 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
     };
     fetchMessages();
   }, [currChat, currUser]);
+
+  // useEffect(() => {
+  //   if (socket.current) {
+  //     socket.current.on("get-users", (users) => {
+  //       console.log("incoming from the backend:",users)
+  //       setOnlineUsers(users);
+  //     });
+  //   }
+  // },[socket]);
+
+  // useEffect(() => {
+  //   console.log("Updated onlineUsers:", onlineUsers);
+  // }, [onlineUsers]);
 
   const handleSendMsg = async (msg) => {
     if (currUser && currChat) {
@@ -79,9 +94,10 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
               </div>
               <div className="username">
                 <h3>{currChat.username}</h3>
+                {/* <p className="status">{onlineUsers.includes(currChat._id) ? "Online" : "Offline"}</p> */}
               </div>
             </div>
-            <Logout />
+            <Logout socket={socket}/>
           </div>
           <div className="chat-messages">
             {messages.map((msg) => (
@@ -126,6 +142,11 @@ const Container = styled.div`
       .username {
         h3 {
           color: white;
+        }
+        .status {
+          color: gray;
+          font-size: 0.9rem;
+          margin-top: 0.2rem;
         }
       }
     }

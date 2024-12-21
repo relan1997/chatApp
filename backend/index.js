@@ -37,18 +37,35 @@ const io = new Server(server, {
   },
 });
 
-global.onlineUsers = new Map();
+let onlineUsers = [];
 
 io.on('connection', (socket) => {
   global.chatSocket = socket;
+  io.emit('get-users', onlineUsers);
   socket.on('add-user', (userId) => {
-    global.onlineUsers.set(userId, socket.id);
+    if (!onlineUsers.some((user) => user.userId === userId)) {
+      onlineUsers.push({ userId, socketId: socket.id });
+      console.log('New User Added:', onlineUsers);
+    }
+    io.emit('get-users', onlineUsers); // Emit consistent event
   });
 
   socket.on('send-msg', (data) => {
-    const sendUserSocket = global.onlineUsers.get(data.to);
-    if (sendUserSocket) {
-      socket.to(sendUserSocket).emit('msg-received', data.message);
+    const sendUser = onlineUsers.find((user) => user.userId === data.to); // Fix filtering
+    if (sendUser) {
+      socket.to(sendUser.socketId).emit('msg-received', data.message);
     }
+  });
+
+  socket.on('disconnect', () => {
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+    console.log('User Disconnected:', onlineUsers);
+    io.emit('get-users', onlineUsers);
+  });
+
+  socket.on('offline', () => {
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
+    console.log('User is Offline:', onlineUsers);
+    io.emit('get-users', onlineUsers);
   });
 });
