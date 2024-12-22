@@ -40,30 +40,34 @@ const io = new Server(server, {
 let onlineUsers = [];
 
 io.on('connection', (socket) => {
-  global.chatSocket = socket;
-  io.emit('get-users', onlineUsers);
   socket.on('add-user', (userId) => {
+    console.log("Add User from Backend")
     if (!onlineUsers.some((user) => user.userId === userId)) {
       onlineUsers.push({ userId, socketId: socket.id });
       console.log('New User Added:', onlineUsers);
     }
     io.emit('get-users', onlineUsers); // Emit consistent event
+    console.log("Get users called along with add user")
   });
 
   socket.on('send-msg', (data) => {
+    console.log("Message Sent event from Backend")
     const sendUser = onlineUsers.find((user) => user.userId === data.to); // Fix filtering
     if (sendUser) {
       socket.to(sendUser.socketId).emit('msg-received', data.message);
+      io.emit('get-users', onlineUsers);
     }
   });
 
   socket.on('disconnect', () => {
+    console.log("Disconnect Event from Backend")
     onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log('User Disconnected:', onlineUsers);
     io.emit('get-users', onlineUsers);
   });
 
   socket.on('offline', () => {
+    console.log("Offline Event from backend")
     onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     console.log('User is Offline:', onlineUsers);
     io.emit('get-users', onlineUsers);

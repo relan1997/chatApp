@@ -5,14 +5,14 @@ import ChatInput from "./ChatInput";
 import axios from "axios";
 import { getAllMessageRoute, sendMessageRoute } from "../utils/APIRoutes";
 
-const ChatContainer = ({ currChat, currUser, socket }) => {
+const ChatContainer = ({ currChat, currUser, socket, status }) => {
   const [messages, setMessages] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [onlineUsers,setOnlineUsers] = useState([])
+  // const [onlineUsers,setOnlineUsers] = useState([])
   const scrollRef = useRef();
 
   useEffect(() => {
-    console.log("from chatContainer",socket)
+    //console.log("from chatContainer",onlineUsers)
     const fetchMessages = async () => {
       if (currChat) {
         try {
@@ -29,18 +29,13 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
     fetchMessages();
   }, [currChat, currUser]);
 
-  // useEffect(() => {
-  //   if (socket.current) {
-  //     socket.current.on("get-users", (users) => {
-  //       console.log("incoming from the backend:",users)
-  //       setOnlineUsers(users);
-  //     });
-  //   }
-  // },[socket]);
-
-  // useEffect(() => {
-  //   console.log("Updated onlineUsers:", onlineUsers);
-  // }, [onlineUsers]);
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on("msg-received", (msg) => {
+        setArrivalMessage({ fromSelf: false, message: msg });
+      });
+    }
+  }, [socket]);
 
   const handleSendMsg = async (msg) => {
     if (currUser && currChat) {
@@ -63,14 +58,6 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
   };
 
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on("msg-received", (msg) => {
-        setArrivalMessage({ fromSelf: false, message: msg });
-      });
-    }
-  }, [socket]);
-
-  useEffect(() => {
     if (arrivalMessage) {
       setMessages((prev) => [...prev, arrivalMessage]);
     }
@@ -79,6 +66,10 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // useEffect(() => {
+  //       console.log("Updated onlineUsers:", onlineUsers);
+  //     }, [onlineUsers]);
 
   return (
     <>
@@ -93,16 +84,18 @@ const ChatContainer = ({ currChat, currUser, socket }) => {
                 />
               </div>
               <div className="username">
-                <h3>{currChat.username}</h3>
-                {/* <p className="status">{onlineUsers.includes(currChat._id) ? "Online" : "Offline"}</p> */}
+                <h3>{currChat._id}</h3>
+                <p className="status">{status ? "Online" : "Offline"}</p>
               </div>
             </div>
-            <Logout socket={socket}/>
+            <Logout socket={socket} />
           </div>
           <div className="chat-messages">
             {messages.map((msg) => (
               <div ref={scrollRef} key={msg._id}>
-                <div className={`message ${msg.fromSelf ? "sended" : "received"}`}>
+                <div
+                  className={`message ${msg.fromSelf ? "sended" : "received"}`}
+                >
                   <div className="content">
                     <p>{msg.message}</p>
                   </div>
