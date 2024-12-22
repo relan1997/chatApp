@@ -32,7 +32,7 @@ const server = app.listen(process.env.PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // Match this with your frontend URL
+    origin: 'https://chatapp-frontend-yvaz.onrender.com', // Match this with your frontend URL
     credentials: true,
   },
 });

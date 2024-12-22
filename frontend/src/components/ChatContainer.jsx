@@ -84,7 +84,7 @@ const ChatContainer = ({ currChat, currUser, socket, status }) => {
                 />
               </div>
               <div className="username">
-                <h3>{currChat._id}</h3>
+                <h3>{currChat.username}</h3>
                 <p className="status">{status ? "Online" : "Offline"}</p>
               </div>
             </div>
