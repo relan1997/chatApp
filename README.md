@@ -123,9 +123,6 @@ chatApp/
 │   ├── controllers/       # Route controllers
 │   ├── models/           # Database models
 │   ├── routes/           # API routes
-│   ├── middleware/       # Custom middleware
-│   ├── utils/            # Utility functions
-│   ├── socket/           # Socket.io configuration
 │   ├── server.js         # Main server file
 │   └── package.json
 └── README.md
